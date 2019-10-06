@@ -131,6 +131,6 @@ normalized_w =[]
 for i in range(len(w)):
     normalized_w.append(w[i]/total_w)
 p3 = []
-p3 = np.random.choice(p, N,p=normalized_w,replace=False)
+p3 = np.random.choice(p, N,p=normalized_w,replace=True)
 
 print(p3)
