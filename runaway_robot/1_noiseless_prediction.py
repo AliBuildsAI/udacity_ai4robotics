@@ -81,7 +81,7 @@ def estimate_next_pos(measurement, OTHER = None):
         OTHER = []
         for i in range(N):
             r = robot(random.gauss(2,10), random.gauss(2,10), -3+ random.random()*7, -3+random.random()*7, random.random()*10)
-            r.set_noise(6, 6, 0)
+            r.set_noise(0.1, 0.1, 0)
             # print(r.x, r.y, r.turning, r.heading, r.distance, r.turning_noise)
             OTHER.append(r)
 
@@ -96,7 +96,12 @@ def estimate_next_pos(measurement, OTHER = None):
         
     print('weights: ', w)
 
-    repeats = 1
+    if (OTHER_was_none is True):
+        repeats = 10
+    else:
+
+        repeats = 6
+
     for j in range(repeats):
 
         # resampling
