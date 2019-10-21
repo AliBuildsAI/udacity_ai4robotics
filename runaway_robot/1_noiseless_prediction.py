@@ -96,35 +96,38 @@ def estimate_next_pos(measurement, OTHER = None):
         
     print('weights: ', w)
 
-    # resampling
-    total_w = 0
-    for i in range(len(w)):
-        total_w += w[i]
-    print('total_w: ', total_w)
-    normalized_w =[]
-    for i in range(len(w)):
-        normalized_w.append(w[i]/total_w)
-    print('normalized weight: ', normalized_w)
-    p3 = np.random.choice(list(range(len(normalized_w,))), N,p=normalized_w,replace=True)
+    repeats = 1
+    for j in range(repeats):
 
-    print('before move: ', p3)
+        # resampling
+        total_w = 0
+        for i in range(len(w)):
+            total_w += w[i]
+        print('total_w: ', total_w)
+        normalized_w =[]
+        for i in range(len(w)):
+            normalized_w.append(w[i]/total_w)
+        print('normalized weight: ', normalized_w)
+        p3 = np.random.choice(list(range(len(normalized_w,))), N,p=normalized_w,replace=True)
 
-    # motion update (prediction)
-    p2 = []
-    for i in range(N):
-        print('literally before move: ', OTHER[p3[i]].x, OTHER[p3[i]].y, OTHER[p3[i]].turning, OTHER[p3[i]].heading, OTHER[p3[i]].distance, OTHER[p3[i]].turning_noise)
-        print('\n')
-        # OTHER[p3[i]].move_in_circle()
-        r = robot(OTHER[p3[i]].x, OTHER[p3[i]].y, OTHER[p3[i]].heading, OTHER[p3[i]].turning, random.gauss(OTHER[p3[i]].distance, 4))
-        # r.set_noise(.6, .6, 0)
-        r.move_in_circle()
-        # r.move_in_circle()
-        print('\n')
-        print('literally after move: ', i, r.x, r.y, r.turning, r.heading, r.distance, r.turning_noise)
-        print('\n')
-        p2.append(r)
-    print('after move: ', p2)
-    # OTHER=p2
+        print('before move: ', p3)
+
+        # motion update (prediction)
+        p2 = []
+        for i in range(N):
+            print('literally before move: ', OTHER[p3[i]].x, OTHER[p3[i]].y, OTHER[p3[i]].turning, OTHER[p3[i]].heading, OTHER[p3[i]].distance, OTHER[p3[i]].turning_noise)
+            print('\n')
+            # OTHER[p3[i]].move_in_circle()
+            r = robot(OTHER[p3[i]].x, OTHER[p3[i]].y, OTHER[p3[i]].heading, OTHER[p3[i]].turning, random.gauss(OTHER[p3[i]].distance, 4))
+            # r.set_noise(.6, .6, 0)
+            r.move_in_circle()
+            # r.move_in_circle()
+            print('\n')
+            print('literally after move: ', i, r.x, r.y, r.turning, r.heading, r.distance, r.turning_noise)
+            print('\n')
+            p2.append(r)
+        print('after move: ', p2)
+        OTHER=p2
 
 
     return get_position(p2), p2
