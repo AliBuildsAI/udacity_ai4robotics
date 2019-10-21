@@ -80,7 +80,7 @@ def estimate_next_pos(measurement, OTHER = None):
         OTHER_was_none = True
         OTHER = []
         for i in range(N):
-            r = robot(random.gauss(2,4), random.gauss(2,4), -3+ random.random()*7, -3+random.random()*7, random.random()*10)
+            r = robot(random.gauss(2,10), random.gauss(2,10), -3+ random.random()*7, -3+random.random()*7, random.random()*10)
             r.set_noise(6, 6, 0)
             # print(r.x, r.y, r.turning, r.heading, r.distance, r.turning_noise)
             OTHER.append(r)
