@@ -67,7 +67,7 @@ import numpy as np
 # next position. The OTHER variable that your function returns will be 
 # passed back to your function the next time it is called. You can use
 # this to keep track of important information over time.
-def measurement_prob(distance, var = 30):
+def measurement_prob(distance, var = 1):
     error = (exp(- (distance ** 2) / (var) / 2.0) /  
               sqrt(2.0 * pi * (var)))
     return error
@@ -80,27 +80,31 @@ def estimate_next_pos(measurement, OTHER = None):
         OTHER_was_none = True
         OTHER = []
         for i in range(N):
-            r = robot(random.gauss(2,10), random.gauss(2,10), -3+ random.random()*7, -3+random.random()*7, random.random()*10)
-            r.set_noise(0.1, 0.1, 0)
+            r = robot(random.gauss(measurement[0],1), random.gauss(measurement[1],1), -3+ random.random()*7, -3+random.random()*7, random.random()*10)
+            r.set_noise(0.00001, 0.00001, 0)
+            r.move_in_circle()
             # print(r.x, r.y, r.turning, r.heading, r.distance, r.turning_noise)
             OTHER.append(r)
 
-    print('states: ', OTHER)
+    #print('states: ', OTHER)
     
 
     # measurement update
     w = []
 
+
     for i in range(N):
-        w.append(measurement_prob(distance_between(measurement, (OTHER[i].x, OTHER[i].y))))
+        distance = distance_between(measurement, (OTHER[i].x, OTHER[i].y))
+        print('distance: ', distance)
+        w.append(measurement_prob(distance))
         
-    print('weights: ', w)
+    #print('weights: ', w)
 
     if (OTHER_was_none is True):
-        repeats = 10
+        repeats = 1
     else:
 
-        repeats = 6
+        repeats = 1
 
     for j in range(repeats):
 
@@ -108,34 +112,39 @@ def estimate_next_pos(measurement, OTHER = None):
         total_w = 0
         for i in range(len(w)):
             total_w += w[i]
-        print('total_w: ', total_w)
+        #print('total_w: ', total_w)
         normalized_w =[]
         for i in range(len(w)):
             normalized_w.append(w[i]/total_w)
-        print('normalized weight: ', normalized_w)
+        #print('normalized weight: ', normalized_w)
+        max_idx = np.argmax(normalized_w)
+
         p3 = np.random.choice(list(range(len(normalized_w,))), N,p=normalized_w,replace=True)
 
-        print('before move: ', p3)
+        #print('before move: ', p3)
 
         # motion update (prediction)
         p2 = []
         for i in range(N):
-            print('literally before move: ', OTHER[p3[i]].x, OTHER[p3[i]].y, OTHER[p3[i]].turning, OTHER[p3[i]].heading, OTHER[p3[i]].distance, OTHER[p3[i]].turning_noise)
-            print('\n')
+            #print('literally before move: ', OTHER[p3[i]].x, OTHER[p3[i]].y, OTHER[p3[i]].turning, OTHER[p3[i]].heading, OTHER[p3[i]].distance, OTHER[p3[i]].turning_noise)
+            #print('\n')
             # OTHER[p3[i]].move_in_circle()
-            r = robot(OTHER[p3[i]].x, OTHER[p3[i]].y, OTHER[p3[i]].heading, OTHER[p3[i]].turning, random.gauss(OTHER[p3[i]].distance, 4))
-            # r.set_noise(.6, .6, 0)
+            r = robot(OTHER[p3[i]].x, OTHER[p3[i]].y, OTHER[p3[i]].heading, OTHER[p3[i]].turning, random.gauss(OTHER[p3[i]].distance, 0.00004))
+            #r.set_noise(1.2, 1.5, 0)
             r.move_in_circle()
+            r.x =random.gauss(r.x, 1.2)
+            r.y = random.gauss(r.y, 1.2)
+            r.heading = random.gauss(r.heading, 0.9)
             # r.move_in_circle()
-            print('\n')
-            print('literally after move: ', i, r.x, r.y, r.turning, r.heading, r.distance, r.turning_noise)
-            print('\n')
+            #print('\n')
+            #print('literally after move: ', i, r.x, r.y, r.turning, r.heading, r.distance, r.turning_noise)
+            #print('\n')
             p2.append(r)
-        print('after move: ', p2)
+        #print('after move: ', p2)
         OTHER=p2
 
 
-    return get_position(p2), p2
+    return get_position(p2), p2#(p2[max_idx].x, p2[max_idx].y), p2 # 
     
 def get_position(p):
     x = 0.0
@@ -163,7 +172,7 @@ def demo_grading(estimate_next_pos_fcn, target_bot, OTHER = None):
     # if you haven't localized the target bot, make a guess about the next
     # position, then we move the bot and compare your guess to the true
     # next position. When you are close enough, we stop checking.
-    while not localized and ctr <= 10: 
+    while not localized and ctr <= 60: 
         ctr += 1
         measurement = target_bot.sense()
         position_guess, OTHER = estimate_next_pos_fcn(measurement, OTHER)
@@ -228,7 +237,7 @@ def demo_grading_vis(estimate_next_pos_fcn, target_bot, OTHER = None):
     broken_robot.penup()
     measured_broken_robot.penup()
     #End of Visualization
-    while not localized and ctr <= 30:
+    while not localized and ctr <= 60:
         ctr += 1
         measurement = target_bot.sense()
         position_guess, OTHER = estimate_next_pos_fcn(measurement, OTHER)
